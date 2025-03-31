@@ -1,0 +1,55 @@
+{
+    "name": "Hospital Web App",
+    "short_name": "HospitalApp",
+    "description": "Aplicación web del hospital para gestión de citas y consultas.",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "rgb(75, 166, 166)",
+    "theme_color": "rgb(75, 166, 166)",
+    "icons": [
+      {
+        "src": "/assets/images/hospital.jpeg",
+        "sizes": "1280x1280",
+        "type": "image/jpg"
+      },
+      {
+        "src": "/assets/images/logo--swh.png",
+        "sizes": "1824x1260",
+        "type": "image/png"
+      },
+      {
+        "src": "/assets/images/profesional--c3po.png",
+        "sizes": "200x200",
+        "type": "image/png"
+      },
+      {
+        "src": "/assets/images/profesional--chewie.png",
+        "sizes": "200x200",
+        "type": "image/png"
+      },
+      {
+        "src": "/assets/images/profesional--vader.png",
+        "sizes": "200x200",
+        "type": "image/png"
+      },
+      {
+        "src": "/assets/images/profesional--yoda.png",
+        "sizes": "200x200",
+        "type": "image/png"
+      }
+    ],
+    "screenshots": [
+    {
+      "src": "/assets/screenshots/screenshot-desktop.png",
+      "sizes": "872x1248",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/screenshots/screenshot-mobile.png",
+      "sizes": "402x1618",
+      "type": "image/png"
+    }
+  ]
+    
+  }
+  
