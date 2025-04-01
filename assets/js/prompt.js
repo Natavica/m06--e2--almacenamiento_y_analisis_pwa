@@ -1,25 +1,22 @@
-
+// Función para validar nombre
 function validarNombre(nombre) {
-    //debugger; // Inspecciona el valor de 'nombre'
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     return regex.test(nombre) && nombre.trim() !== "";
 }
 
+// Función para validar correo
 function validarCorreo(correo) {
-    //debugger; // Inspecciona el valor de 'correo'
     if (!correo.includes("@")) {
         return false;
-    } else {
-        return true;
     }
+    return true;
 }
 
+// Función para validar teléfono
 function validarTelefono(telefono) {
-    //debugger; // Inspecciona el valor de 'telefono'
     const regex = /^\d{7,15}$/;
     return regex.test(telefono);
 }
-
 
 function pedirDato(mensaje, funcionValidar) {
     let dato;
@@ -37,10 +34,11 @@ function pedirDato(mensaje, funcionValidar) {
     return dato; // Retornar el dato válido
 }
 
-// Seleccionar el botón y agregar el evento
-const botonReserva = document.getElementById("reserva");
-botonReserva.addEventListener("click", function () {
+
+// Función para reservar una hora
+function reservarHora() {
     try {
+        // Pedir los datos al usuario
         const nombre = pedirDato("Por favor, ingresa tu nombre:", validarNombre);
         if (nombre === null) return; // Si se canceló, salimos de la función
 
@@ -55,9 +53,49 @@ botonReserva.addEventListener("click", function () {
         console.log("Correo válido:", correo);
         console.log("Teléfono válido:", telefono);
 
-        alert(`Datos válidos:\nNombre: ${nombre}\nCorreo: ${correo}\nTeléfono: ${telefono}`);
+        // Crear un objeto con los datos de la cita
+        const cita = {
+            paciente: nombre,
+            correo: correo,
+            telefono: telefono,
+            doctor: "Dra. García",  // Este valor podría ser dinámico también
+            fecha: "2025-04-01",   // Puedes cambiar esto para que se ingrese desde el formulario también
+            hora: "10:00 AM"       // Este valor también podría ser dinámico
+        };
+
+        // Llamar a la función para guardar la cita en la base de datos
+        agregarCita(cita);
+
+        // Informar al usuario que la cita se ha registrado
+        alert(`Cita reservada correctamente.\nNombre: ${nombre}\nCorreo: ${correo}\nTeléfono: ${telefono}`);
+
     } catch (error) {
         console.error("Error al manejar la reserva:", error);
         alert("Ocurrió un problema al procesar la reserva.");
     }
-});
+}
+
+// Asignar el evento al botón de reserva
+const botonReserva = document.getElementById("reserva");
+botonReserva.addEventListener("click", reservarHora);
+
+
+function agregarCita(cita) {
+    if (!db) {
+        console.error("❌ La base de datos no está lista aún.");
+        return;
+    }
+
+    const transaction = db.transaction(["citas"], "readwrite");
+    const citasStore = transaction.objectStore("citas");
+
+    const request = citasStore.add(cita);
+
+    request.onsuccess = function(event) {
+        console.log("✅ Cita guardada en IndexedDB con ID:", event.target.result);
+    };
+
+    request.onerror = function(event) {
+        console.error("❌ Error al guardar la cita:", event.target.error);
+    };
+}

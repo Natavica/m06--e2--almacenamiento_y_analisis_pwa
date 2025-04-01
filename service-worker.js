@@ -9,8 +9,9 @@ const APP_SHELL = [
   '/contacto.html', 
   '/assets/scss/main.css', 
   '/assets/js/navbar.js', 
-  '/assets/js/promp.js', 
+  '/assets/js/prompt.js', 
   '/assets/js/script.js', 
+  '/assets/js/app.js', 
   '/assets/images/hospital.jpeg', //
   '/assets/images/logo--swh.png', 
   '/assets/images/profesional--c3po.png', 
@@ -28,15 +29,31 @@ const APP_SHELL = [
 // });
 
 self.addEventListener("install", (e) => {
+  console.log('Service Worker instalado');
   e.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .catch((err) => {
-        console.error('Error al agregar archivos al caché:', err);
-      })
+      caches
+          .open(STATIC_CACHE)
+          .then((cache) => {
+              console.log('Archivos añadidos al caché:', APP_SHELL);
+              return cache.addAll(APP_SHELL);
+          })
+          .catch((err) => {
+              console.error('Error al agregar archivos al caché:', err);
+          })
   );
 });
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+              console.log('Service Worker registrado con éxito:', registration);
+          })
+          .catch(error => {
+              console.error('Error al registrar el Service Worker:', error);
+          });
+  });
+}
 
 
 self.addEventListener("fetch", (e) => {

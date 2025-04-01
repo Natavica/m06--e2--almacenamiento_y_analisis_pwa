@@ -1,111 +1,104 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const darkModeToggle = document.getElementById('darkModeToggle');
+document.addEventListener("DOMContentLoaded", () => {
+    const darkModeToggle = document.getElementById("darkModeToggle");
     const body = document.body;
 
     // Comprobar si hay un valor guardado en localStorage
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    const isDarkMode = localStorage.getItem("darkMode") === "true";
 
     // Aplicar el modo oscuro si estaba activado previamente
     if (isDarkMode) {
-        body.classList.add('dark-mode');
+        body.classList.add("dark-mode");
         darkModeToggle.checked = true;
     }
 
     // Escuchar cambios en el interruptor
-    darkModeToggle.addEventListener('change', () => {
+    darkModeToggle.addEventListener("change", () => {
         if (darkModeToggle.checked) {
-            body.classList.add('dark-mode');
-            localStorage.setItem('darkMode', 'true');
+            body.classList.add("dark-mode");
+            localStorage.setItem("darkMode", "true");
         } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('darkMode', 'false');
+            body.classList.remove("dark-mode");
+            localStorage.setItem("darkMode", "false");
         }
     });
 });
 
+// ---------------------------- IndexedDB ----------------------------
+let db;
 
-// Abrir (o crear) la base de datos
-const request = indexedDB.open('HospitalDB', 1);
+function openDatabase() {
+    const request = indexedDB.open("hospitalDB", 1);
 
-request.onupgradeneeded = (event) => {
-    const db = event.target.result;
-    // Crear un almacén de objetos (tabla) para las citas
-    const objectStore = db.createObjectStore('citas', { keyPath: 'id', autoIncrement: true });
-    // Definir índices si es necesario
-    objectStore.createIndex('paciente', 'paciente', { unique: false });
-    objectStore.createIndex('fecha', 'fecha', { unique: false });
-};
-
-request.onsuccess = (event) => {
-    const db = event.target.result;
-    // Aquí puedes añadir funciones para interactuar con la base de datos
-};
-
-request.onerror = (event) => {
-    console.error('Error al abrir la base de datos', event.target.errorCode);
-};
-
-function agregarCita(cita) {
-    const dbTransaction = db.transaction(['citas'], 'readwrite');
-    const objectStore = dbTransaction.objectStore('citas');
-    const request = objectStore.add(cita);
-
-    request.onsuccess = () => {
-        console.log('Cita agregada con éxito');
+    request.onupgradeneeded = function(event) {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("citas")) {
+            db.createObjectStore("citas", { keyPath: "id", autoIncrement: true });
+        }
     };
 
-    request.onerror = (event) => {
-        console.error('Error al agregar la cita', event.target.errorCode);
+    request.onsuccess = function(event) {
+        db = event.target.result;
+        console.log("✅ Base de datos abierta exitosamente.");
+    };
+
+    request.onerror = function(event) {
+        console.error("❌ Error al abrir la base de datos:", event.target.error);
     };
 }
 
-// Ejemplo de uso:
-const nuevaCita = { paciente: 'Juan Pérez', fecha: '2025-04-15', motivo: 'Consulta general' };
-agregarCita(nuevaCita);
+// Luego, en algún punto posterior del código, abre la base de datos.
+openDatabase(); // Llama a la función para abrir la base de datos
 
 
-const CACHE_NAME = 'hospital-pwa-cache-v1';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    '/assets/css/main.css',
-    '/assets/js/script.js',
-    // Agrega aquí otros recursos que deseas cachear
-];
+// ---------------------------- Guardar y Verificar Citas ----------------------------
+function agregarCita(cita) {
+    if (!db) {
+        console.error("❌ La base de datos no está lista aún.");
+        return;
+    }
 
-// Instalación del Service Worker
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => cache.addAll(urlsToCache))
-    );
-});
+    console.log("📩 Intentando guardar cita en IndexedDB:", cita);
 
-// Activación del Service Worker
-self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (!cacheWhitelist.includes(cacheName)) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
+    const transaction = db.transaction(["citas"], "readwrite");
+    const citasStore = transaction.objectStore("citas");
 
-// Interceptar solicitudes y servir desde la caché
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
-    );
-});
+    const request = citasStore.add(cita);
+
+    request.onsuccess = function(event) {
+        console.log("✅ Cita guardada en IndexedDB con ID:", event.target.result);
+    };
+
+    request.onerror = function(event) {
+        console.error("❌ Error al guardar la cita:", event.target.error);
+    };
+}
+
+function agregarCita(cita) {
+    if (!db) {
+        console.error("❌ La base de datos no está lista aún.");
+        return;
+    }
+
+    // 🔹 Generar un ID único basado en la fecha/hora actual
+    cita.id = new Date().getTime();
+
+    console.log("📩 Intentando guardar cita en IndexedDB:", cita);
+
+    const transaction = db.transaction(["citas"], "readwrite");
+    const citasStore = transaction.objectStore("citas");
+
+    const request = citasStore.add(cita);
+
+    request.onsuccess = function(event) {
+        console.log("✅ Cita guardada en IndexedDB con ID:", event.target.result);
+    };
+
+    request.onerror = function(event) {
+        console.error("❌ Error al guardar la cita:", event.target.error);
+    };
+}
+
+// Llamar a la verificación después de unos segundos
+setTimeout(verificarCitas, 3000);
+
+
