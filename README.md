@@ -91,8 +91,39 @@ PWA.
 └── contacto.html           # Página de contacto
 └── manifest.json           # Manifiesto
 └── service-worker.js       # Service Worker
-
+└── reporte-lighthouse.html # Reporte Lighthouse
 ```
 
 ---
 
+1. Implementación de Almacenamiento Web 
+- Configura un sistema de almacenamiento para la PWA del hospital usando
+LocalStorage o SessionStorage:
+- Almacena datos de usuario o información importante para que persista incluso
+después de recargar la página.
+- Asegúrate de que el almacenamiento se realice de manera eficiente y que los
+datos almacenados puedan ser recuperados correctamente.
+Tip: Considera almacenar preferencias del usuario, configuración de la
+sesión, o cualquier dato que deba ser accesible en diferentes sesiones.
+
+2. Implementación de IndexedDB 
+-Se almacenan datos a modo de prueba, que se obtienen a través de un promp en "Agendar Cita"
+se solicita nombre, correo y teléfono y se almacenan en indexedDB (hospital DB)
+
+
+3. Despliegue y Configuración del Service Worker Personalizado 
+Se perdonalizó un Service Worker que gestione los archivos de caché y
+soporte el almacenamiento offline:
+- El Service Worker funcione adecuadamente para manejar la
+caché de los archivos y el almacenamiento en  IndexedDB.
+- La PWA esté desplegada correctamente y sea accesible offline.
+
+4. Pruebas de Rendimiento con Lighthouse 
+- Ejecuta Lighthouse para validar el rendimiento de la PWA:
+- Verifica que la aplicación sea instalable, funcione offline, y tenga un buen
+rendimiento en términos de velocidad y accesibilidad.
+- Revisa el informe de Lighthouse y mejora los aspectos recomendados por la
+herramienta.
+
+
+Se cumnplen con todos los items requeridos.
